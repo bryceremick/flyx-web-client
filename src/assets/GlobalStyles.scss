@@ -1,0 +1,25 @@
+$Fredoka: 'Fredoka One', cursive;
+$OpenSans: 'Open Sans', sans-serif;
+$Nunito: 'Nunito', sans-serif;
+
+$PrimaryBlue: #6487A5;
+$PrimaryGreen: #2ED199;
+$SecondaryBlue: #22B4DE;
+$FontDark: #4A4A4A;
+$FontLight: #FFFFFF;
+
+* {
+    margin: 0px;
+    padding: 0px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: $OpenSans;
+}
+body {
+    font-family: $OpenSans;
+    background-color: #F7F7F7;
+    color: $FontDark;
+}
+#app {
+    overflow: hidden;
+}
