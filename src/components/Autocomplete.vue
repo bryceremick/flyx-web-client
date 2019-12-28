@@ -46,7 +46,7 @@ export default {
       Api()
         .get("/autocomplete?q=" + this.query)
         .then(response => {
-          this.results = response.data.map(a => a._source.Combined);
+          this.results = response.data.data.map(a => a._source.Combined);
         });
     },
     closeSuggestions: function () {
