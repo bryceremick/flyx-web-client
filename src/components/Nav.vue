@@ -74,8 +74,8 @@
 import Api from "@/services/Api";
 import autocomplete from "@/components/Autocomplete";
 
-import firebase from "firebase/app";
-import "firebase/auth";
+// import firebase from "firebase/app";
+// import "firebase/auth";
 
 export default {
   components: {

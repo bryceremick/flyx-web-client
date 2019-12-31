@@ -69,7 +69,7 @@
 <script>
 /* eslint-disable */
 import Api from "@/services/Api";
-import { functions } from "firebase";
+// import { functions } from "firebase";
 
 export default {
   props: {

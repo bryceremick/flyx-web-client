@@ -57,8 +57,16 @@
               <b-button icon-left="search" class="button is-secondary">Search</b-button>
             </p>
           </b-field>-->
-          <autocomplete v-model="searchData.from" id="from-input" placeholder="From"></autocomplete>
-          <autocomplete v-model="searchData.to" id="to-input" placeholder="To"></autocomplete>
+          <autocomplete
+            v-model="searchData.from"
+            id="from-input"
+            placeholder="From"
+          ></autocomplete>
+          <autocomplete
+            v-model="searchData.to"
+            id="to-input"
+            placeholder="To"
+          ></autocomplete>
 
           <v-date-picker
             class="datepicker"
@@ -66,7 +74,7 @@
             :pane-width="150"
             name="date"
             mode="range"
-            :input-props='{placeholder: "Departure Window", readonly: true}'
+            :input-props="{ placeholder: 'Departure Window', readonly: true }"
             :available-dates="{ start: new Date(), end: new Date(), span: 280 }"
             :disabledAttribute="disabledAttribute"
             v-model="searchData.departureWindow"
@@ -76,7 +84,10 @@
             class="datepicker"
             id="return-datepicker"
             :pane-width="150"
-            :input-props='{placeholder: "Return Departure Window",readonly: true}'
+            :input-props="{
+              placeholder: 'Return Departure Window',
+              readonly: true
+            }"
             name="date"
             mode="range"
             :available-dates="{ start: new Date(), end: new Date(), span: 280 }"
@@ -84,7 +95,11 @@
             v-model="searchData.returnDepartureWindow"
             show-caps
           ></v-date-picker>
-          <button :disabled="dispSpinner" id="nav-search-submit-btn" type="submit">
+          <button
+            :disabled="dispSpinner"
+            id="nav-search-submit-btn"
+            type="submit"
+          >
             <span id="submit-svg"></span>
           </button>
         </form>
@@ -109,7 +124,11 @@
     <!-- App Sort Bar -->
     <div id="app-sort-wrap">
       <div id="main-sorts-wrap">
-        <div class="main-sort" @click="chooseMainSort('price')" id="sort-by-price">
+        <div
+          class="main-sort"
+          @click="chooseMainSort('price')"
+          id="sort-by-price"
+        >
           <div class="main-sort-left">
             <div class="sort-checked" v-if="isSortPrice"></div>
           </div>
@@ -118,7 +137,11 @@
             <p v-else>Price</p>
           </div>
         </div>
-        <div class="main-sort" @click="chooseMainSort('duration')" id="sort-by-duration">
+        <div
+          class="main-sort"
+          @click="chooseMainSort('duration')"
+          id="sort-by-duration"
+        >
           <div class="main-sort-left">
             <div class="sort-checked" v-if="isSortDuration"></div>
           </div>
@@ -127,7 +150,11 @@
             <p v-else>Duration</p>
           </div>
         </div>
-        <div class="main-sort" @click="chooseMainSort('date')" id="sort-by-date">
+        <div
+          class="main-sort"
+          @click="chooseMainSort('date')"
+          id="sort-by-date"
+        >
           <div class="main-sort-left">
             <div class="sort-checked" v-if="isSortDate"></div>
           </div>
@@ -150,7 +177,7 @@
       <div id="search-spinner" v-if="dispSpinner"></div>
       <div v-if="isSortPrice">
         <ticket
-          v-for="(ticket,i) in ticketsByPrice"
+          v-for="(ticket, i) in ticketsByPrice"
           @click="setTicketDetails(ticket)"
           :ticketData="ticket"
           :key="i"
@@ -158,7 +185,7 @@
       </div>
       <div v-if="isSortDuration">
         <ticket
-          v-for="(ticket,i) in ticketsByDuration"
+          v-for="(ticket, i) in ticketsByDuration"
           @click="setTicketDetails(ticket)"
           :ticketData="ticket"
           :key="i"
@@ -166,7 +193,7 @@
       </div>
       <div v-if="isSortDate">
         <ticket
-          v-for="(ticket,i) in ticketsByDate"
+          v-for="(ticket, i) in ticketsByDate"
           @click="setTicketDetails(ticket)"
           :ticketData="ticket"
           :key="i"
@@ -178,35 +205,44 @@
     <div id="app-ticket-details-wrap">
       <div id="details-text-wrap">
         <div v-if="ticketDetailsData" class="text-inner-wrap">
-          <div v-for="(leg,i) in ticketDetailsData.route" :key="i" class="details-text-leg-wrap">
+          <div
+            v-for="(leg, i) in ticketDetailsData.route"
+            :key="i"
+            class="details-text-leg-wrap"
+          >
             <div class="leg">
               <div class="leg-date-row leg-row">
                 <p>
-                  {{convertDate(leg.dTimeUTC)}}
+                  {{ convertDate(leg.dTimeUTC) }}
                   <span
-                    v-if="convertDate(leg.dTimeUTC) != convertDate(leg.aTimeUTC)"
-                  >- {{convertDate(leg.aTimeUTC)}}</span>
+                    v-if="
+                      convertDate(leg.dTimeUTC) != convertDate(leg.aTimeUTC)
+                    "
+                    >- {{ convertDate(leg.aTimeUTC) }}</span
+                  >
                 </p>
               </div>
               <div class="leg-top leg-row">
                 <img src="../assets/plane-departure.svg" alt />
-                <p class="leg-time">{{converTime(leg.dTimeUTC)}}</p>
+                <p class="leg-time">{{ converTime(leg.dTimeUTC) }}</p>
                 <p class="leg-airport">
-                  <span class="leg-airport-code">{{leg.flyFrom}}</span>
-                  - {{leg.cityFrom}}
+                  <span class="leg-airport-code">{{ leg.flyFrom }}</span>
+                  - {{ leg.cityFrom }}
                 </p>
               </div>
               <div class="leg-mid leg-row">
                 <img src="../assets/plane-arrival.svg" alt />
-                <p class="leg-time">{{converTime(leg.aTimeUTC)}}</p>
+                <p class="leg-time">{{ converTime(leg.aTimeUTC) }}</p>
                 <p class="leg-airport">
-                  <span class="leg-airport-code">{{leg.flyTo}}</span>
-                  - {{leg.cityTo}}
+                  <span class="leg-airport-code">{{ leg.flyTo }}</span>
+                  - {{ leg.cityTo }}
                 </p>
               </div>
               <div class="leg-bot leg-row">
                 <div>
-                  <p>{{convertAirlineCode(leg.airline)}} #{{leg.flight_no}}</p>
+                  <p>
+                    {{ convertAirlineCode(leg.airline) }} #{{ leg.flight_no }}
+                  </p>
                 </div>
                 <div class="leg-guaranteed" v-if="leg.guarantee">
                   <p>Guaranteed</p>
@@ -216,12 +252,16 @@
                 </div>
               </div>
             </div>
-            <div v-if="ticketDetailsData.route[i+1]" class="layover">
+            <div v-if="ticketDetailsData.route[i + 1]" class="layover">
               <div class="layover-clock-wrap">
                 <img class="layover-clock-img" src="../assets/clock.svg" />
               </div>
               <div class="layover-text-wrap">
-                <p>{{determineLayoverTime(leg, ticketDetailsData.route[i+1])}}</p>
+                <p>
+                  {{
+                    determineLayoverTime(leg, ticketDetailsData.route[i + 1])
+                  }}
+                </p>
               </div>
             </div>
           </div>
@@ -229,13 +269,19 @@
       </div>
       <div id="details-buy-btn-wrap">
         <div v-if="ticketDetailsData" id="ticket-buy-btn-trip-brief">
-          <p>{{ticketDetailsData.flyFrom}}</p>
-          <img v-if="selectedTicketOneWay" style="width: 15px;" src="../assets/one-way-white.svg" />
+          <p>{{ ticketDetailsData.flyFrom }}</p>
+          <img
+            v-if="selectedTicketOneWay"
+            style="width: 15px;"
+            src="../assets/one-way-white.svg"
+          />
           <img v-else src="../assets/round-trip-white.svg" />
-          <p>{{ticketDetailsData.flyTo}}</p>
+          <p>{{ ticketDetailsData.flyTo }}</p>
         </div>
 
-        <p id="buy-btn-wrap-price" v-if="ticketDetailsData">${{ticketDetailsData.price}}.00</p>
+        <p id="buy-btn-wrap-price" v-if="ticketDetailsData">
+          ${{ ticketDetailsData.price }}.00
+        </p>
         <a
           v-if="ticketDetailsData"
           :href="ticketDetailsData.deep_link"
@@ -248,49 +294,73 @@
     </div>
 
     <!-- Profile Modal -->
-    <sweet-modal ref="profileModal" overlay-theme="dark" width="400px" :title="currUserDisplayName">
+    <sweet-modal
+      ref="profileModal"
+      overlay-theme="dark"
+      width="400px"
+      :title="currUserDisplayName"
+    >
       <b-taglist attached>
         <b-tag size="is-large" type="is-primary">Member Tier</b-tag>
 
         <!-- If user is VIP -->
         <b-tag v-if="currUserIsVIP" size="is-large" type="is-warning">
-          <span style="margin: 0 10px;"><b-icon icon="heart" size="is-small"></b-icon></span><span style="margin-left: 5px;">VIP</span>
+          <span style="margin: 0 10px;"
+            ><b-icon icon="heart" size="is-small"></b-icon></span
+          ><span style="margin-left: 5px;">VIP</span>
         </b-tag>
 
         <!-- Else If user is Beta -->
         <b-tag v-else-if="currUserIsBeta" size="is-large" type="is-warning">
-          <span style="margin: 0 10px;"><b-icon icon="flask" size="is-small"></b-icon></span><span style="margin-left: 5px;">Beta</span>
+          <span style="margin: 0 10px;"
+            ><b-icon icon="flask" size="is-small"></b-icon></span
+          ><span style="margin-left: 5px;">Beta</span>
         </b-tag>
 
         <!-- Else -->
         <b-tag v-else size="is-large" type="is-warning">
-          <span style="margin: 0 10px;"><b-icon icon="award" size="is-small"></b-icon></span><span style="margin-left: 5px;">Gold</span>
+          <span style="margin: 0 10px;"
+            ><b-icon icon="award" size="is-small"></b-icon></span
+          ><span style="margin-left: 5px;">Gold</span>
         </b-tag>
-
       </b-taglist>
       <b-taglist attached>
         <b-tag size="is-large" type="is-primary">Remaining Searches</b-tag>
-        <b-tag v-if="currUserIsVIP" size="is-large" type="is-accent"><b-icon style="margin: 0 5px;" icon="infinity" size="is-small"></b-icon></b-tag>
-        <b-tag v-else size="is-large" type="is-accent">{{currUserRemainingSearches}}</b-tag>
+        <b-tag v-if="currUserIsVIP" size="is-large" type="is-accent"
+          ><b-icon
+            style="margin: 0 5px;"
+            icon="infinity"
+            size="is-small"
+          ></b-icon
+        ></b-tag>
+        <b-tag v-else size="is-large" type="is-accent">{{
+          currUserRemainingSearches
+        }}</b-tag>
       </b-taglist>
       <hr style="border-top: 1px solid #979797" />
       <b-field>
-            <b-input expanded placeholder="Promo Code"
-                icon="key">
-            </b-input>
-            <p class="control">
-                <b-button class="button is-secondary">Submit</b-button>
-            </p>
-        </b-field>
-      <b-field>
-        <b-button disabled class="is-fullwidth is-secondary" >Upgrade Plan (coming soon)</b-button>
+        <b-input expanded placeholder="Promo Code" icon="key"> </b-input>
+        <p class="control">
+          <b-button class="button is-secondary">Submit</b-button>
+        </p>
       </b-field>
       <b-field>
-        <b-button @click="signOut()" class="is-fullwidth is-danger">Sign Out</b-button>
+        <b-button disabled class="is-fullwidth is-secondary"
+          >Upgrade Plan (coming soon)</b-button
+        >
+      </b-field>
+      <b-field>
+        <b-button @click="signOut()" class="is-fullwidth is-danger"
+          >Sign Out</b-button
+        >
       </b-field>
       <hr style="border-top: 1px solid #979797" />
       <b-field>
-        <b-input type="textarea" minlength="25" placeholder="What's wrong with our website?"></b-input>
+        <b-input
+          type="textarea"
+          minlength="25"
+          placeholder="What's wrong with our website?"
+        ></b-input>
       </b-field>
       <b-field>
         <b-button class="is-fullwidth is-accent">Send Feedback</b-button>
@@ -313,8 +383,6 @@ import autocomplete from "@/components/Autocomplete";
 import ticket from "@/components/Ticket";
 import debounce from "debounce";
 import { SweetModal, SweetModalTab } from "sweet-modal-vue";
-import firebase, { functions } from "firebase/app";
-import "firebase/auth";
 const moment = require("moment-timezone");
 const airlinesCodes = require("airlines-iata-codes");
 
@@ -331,19 +399,18 @@ export default {
       // searchData is the object that exists in our nav component
       // to temporarily store the input form data
       searchData: {
-        uid: this.$store.getters.currUserID,
         oneWay: false,
         from: "",
         to: "",
         radiusFrom: "100",
         radiusTo: "100",
         departureWindow: {
-          start: null/*new Date(new Date().getTime() + 86400000)*/,
-          end: null/*new Date(new Date().getTime() + 86400000 * 7)*/,
+          start: null /*new Date(new Date().getTime() + 86400000)*/,
+          end: null /*new Date(new Date().getTime() + 86400000 * 7)*/
         },
         returnDepartureWindow: {
-          start: null/*new Date(new Date().getTime() + 86400000 * 9)*/,
-          end: null/*new Date(new Date().getTime() + 86400000 * 16)*/,
+          start: null /*new Date(new Date().getTime() + 86400000 * 9)*/,
+          end: null /*new Date(new Date().getTime() + 86400000 * 16)*/
         }
       },
       //works like css, for what is disabled we can choose the style to give the content
@@ -352,6 +419,7 @@ export default {
           opacity: 0.3
         }
       },
+      // idToken: this.getIDToken(),
       ticketsByPrice: [],
       ticketsByDuration: [],
       ticketsByDate: [],
@@ -396,7 +464,7 @@ export default {
     },
     currUserIsBeta() {
       return this.$store.getters.currUserIsBeta;
-    },
+    }
   },
   mounted() {
     var roundBtn = document.getElementById("round-trip-btn");
@@ -410,6 +478,8 @@ export default {
       }
       this.ticketDetailsData = ticket;
     });
+
+    // console.log(this.$store.getters.currUserIDToken);
   },
   methods: {
     refresh() {
@@ -439,13 +509,18 @@ export default {
 
       // do post request
       Api()
-        .post("/search", this.searchData)
+        .post("/search", this.searchData, {
+          headers: {
+            Authorization: this.$store.getters.currUserIDToken
+          }
+        })
         .then(response => {
           this.isLoading(false);
+          const payload = response.data.data;
 
-          if (response.data.code == 1) {
-            let tickets = response.data.tickets.data;
-            let remainingSearches = response.data.remainingSearches;
+          if (response.status == 200) {
+            let tickets = payload.tickets.data;
+            let remainingSearches = payload.remainingSearches;
             this.$store.commit("setRemainingSearches", remainingSearches);
 
             this.ticketsByPrice = [];
@@ -461,7 +536,7 @@ export default {
             this.ticketsByDate.sort(this.compareDate);
 
             this.isSortPrice = true;
-          } else if (response.data.code == 0) {
+          } else if (response.status == 401) {
             this.isOutOfSearches = true;
             this.$toast.open({
               duration: 3000,
@@ -471,6 +546,12 @@ export default {
             });
           } else {
             // ***** NEED ERROR HANDLING *******
+            this.$toast.open({
+              duration: 3000,
+              message: `Something went wrong, please try again later.`,
+              position: "is-bottom",
+              type: "is-danger"
+            });
             console.log("Something went wrong with the search");
           }
         })

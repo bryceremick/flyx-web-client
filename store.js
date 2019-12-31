@@ -3,7 +3,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersist from "vuex-persist";
 import firebase from "firebase/app";
-import "firebase/auth";
+// import "firebase/auth";
 import Api from "./src/services/Api";
 import { Snackbar } from "buefy/dist/components/snackbar";
 // import { LoadingProgrammatic as Loading} from "buefy/dist/components/loading";
@@ -18,7 +18,8 @@ const vuexLocalStorage = new VuexPersist({
     USER: state.USER,
     remainingSearches: state.remainingSearches,
     isVIP: state.isVIP,
-    isBeta: state.isBeta
+    isBeta: state.isBeta,
+    idToken: state.idToken
   })
 });
 
@@ -27,7 +28,8 @@ export const store = new Vuex.Store({
     USER: null,
     remainingSearches: null,
     isVIP: null,
-    isBeta: null
+    isBeta: null,
+    idToken: null
   },
   mutations: {
     initUser(state, firebaseUser) {
@@ -41,6 +43,9 @@ export const store = new Vuex.Store({
     },
     setBeta(state, b) {
       state.isBeta = b;
+    },
+    setIDToken(state, token) {
+      state.idToken = token;
     }
   },
   getters: {
@@ -53,6 +58,9 @@ export const store = new Vuex.Store({
     currUserRemainingSearches(state) {
       return state.remainingSearches;
     },
+    currUserIDToken(state) {
+      return state.idToken;
+    },
     currUserIsVIP(state) {
       return state.isVIP;
     },
@@ -63,13 +71,6 @@ export const store = new Vuex.Store({
   actions: {
     // Sign in with email and password
     signIn(context, userInfo) {
-      //   this._vm.$toast.open({
-      //     duration: 3000,
-      //     message: `You have no remaining searches!`,
-      //     position: 'is-bottom',
-      //     type: 'is-danger'
-      // });
-
       // Open Loading Spinner
       const loadingComponent = this._vm.$loading.open();
 
@@ -80,26 +81,25 @@ export const store = new Vuex.Store({
           // Close Loading Spinner
           loadingComponent.close();
 
-          // If user email is verified, do post request to server to verify
-          // they are in firestore DB
           if (result.user.emailVerified) {
-            // send user id to server to check if new user
             Api()
-              .post("/verifynewuser", { uid: result.user.uid })
+              .post(
+                "/user/verify",
+                {},
+                {
+                  headers: {
+                    Authorization: context.getters.currUserIDToken
+                  }
+                }
+              )
               .then(response => {
-                // alert(`[store.js] ${response.data.message}`);
-
-                // Get user data from server
-                Api()
-                  .post("/remainingsearches", { uid: result.user.uid })
-                  .then(response => {
-                    context.commit(
-                      "setRemainingSearches",
-                      response.data.remainingSearches
-                    );
-                    context.commit("setVIP", response.data.isVIP);
-                    context.commit("setBeta", response.data.isBeta);
-                  });
+                const payload = response.data.data;
+                context.commit(
+                  "setRemainingSearches",
+                  payload.remainingSearches
+                );
+                context.commit("setVIP", payload.VIP);
+                context.commit("setBeta", payload.beta);
               });
 
             // if user email is NOT verified, alert them
@@ -140,27 +140,22 @@ export const store = new Vuex.Store({
         .auth()
         .signInWithPopup(provider)
         .then(function(result) {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          // var token = result.credential.accessToken;
 
-          // send user id to server to check if new user
           Api()
-            .post("/verifynewuser", { uid: result.user.uid })
+            .post(
+              "/user/verify",
+              {},
+              {
+                headers: {
+                  Authorization: context.getters.currUserIDToken
+                }
+              }
+            )
             .then(response => {
-              //  alert(response.data.code + ': ' + response.data.message);
-              // alert(`[store.js] ${response.data.message}`);
-
-              // Get user data from server
-              Api()
-                .post("/remainingsearches", { uid: result.user.uid })
-                .then(response => {
-                  context.commit(
-                    "setRemainingSearches",
-                    response.data.remainingSearches
-                  );
-                  context.commit("setVIP", response.data.isVIP);
-                  context.commit("setBeta", response.data.isBeta);
-                });
+              const payload = response.data.data;
+              context.commit("setRemainingSearches", payload.remainingSearches);
+              context.commit("setVIP", payload.VIP);
+              context.commit("setBeta", payload.beta);
             });
         })
         .catch(function(error) {
@@ -242,29 +237,30 @@ export const store = new Vuex.Store({
           // alert(error.message);
         });
     },
-    resetPassword(context, emailAddr){
+    resetPassword(context, emailAddr) {
       // Open Loading Spinner
       const loadingComponent = this._vm.$loading.open();
 
       firebase
-      .auth()
-      .sendPasswordResetEmail(emailAddr)
-      .then(function() {
-        // Close Loading Spinner
-        loadingComponent.close();
+        .auth()
+        .sendPasswordResetEmail(emailAddr)
+        .then(function() {
+          // Close Loading Spinner
+          loadingComponent.close();
 
-        // Email sent.
-        Snackbar.open({
-          message: "Password reset email sent to specifed email address",
-          position: "is-bottom-left"
+          // Email sent.
+          Snackbar.open({
+            message: "Password reset email sent to specifed email address",
+            position: "is-bottom-left"
+          });
+        })
+        .catch(function(error) {
+          // Close Loading Spinner
+          loadingComponent.close();
+          // An error happened.
+          alert(`email verification error: ${error}`);
         });
-      }).catch(function(error) {
-        // Close Loading Spinner
-        loadingComponent.close();
-        // An error happened.
-        alert(`email verification error: ${error}`);
-      });
-    },
+    }
   },
   plugins: [vuexLocalStorage.plugin]
 });

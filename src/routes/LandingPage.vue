@@ -254,8 +254,6 @@
 import Api from "@/services/Api";
 import PriceTicker from "@/components/PriceTicker";
 import { SweetModal, SweetModalTab } from "sweet-modal-vue";
-import firebase, { functions } from "firebase/app";
-import "firebase/auth";
 import passwordValidator from 'password-validator';
 
 export default {
