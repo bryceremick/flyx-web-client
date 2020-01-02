@@ -1,51 +1,54 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import AppPage from '@/routes/AppPage'
-import LandingPage from '@/routes/LandingPage'
-import { store } from '../../store'
+import Vue from "vue";
+import Router from "vue-router";
+import AppPage from "@/routes/AppPage";
+import LandingPage from "@/routes/LandingPage";
+import { store } from "../../store";
 
-Vue.use(Router)
+Vue.use(Router);
 
 const router = new Router({
-  mode: 'history',
-  routes: [{
-      path: '/',
+  mode: "history",
+  routes: [
+    {
+      path: "/",
       meta: {
-        title: 'FlyX - Home',
+        title: "FlyX - Home",
         requiresAuth: false
       },
-      name: 'LandingPage',
+      name: "LandingPage",
       component: LandingPage
     },
     {
-      path: '/app',
+      path: "/app",
       meta: {
-        title: 'FlyX - App',
+        title: "FlyX - App",
         requiresAuth: true
       },
-      name: 'AppPage',
+      name: "AppPage",
       component: AppPage
-    },
-
-  ],
-
-})
+    }
+  ]
+});
 
 export default router;
 
 router.beforeEach(async (to, from, next) => {
-  let currentUser = store.state.USER;
-  let requriesAuth = to.matched.some(record => record.meta.requiresAuth);
+  try {
+    let currentUser = store.state.USER;
+    let requriesAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  if (requriesAuth && !currentUser) {
-    next('/');
-  } else if (!requriesAuth && !currentUser) {
-    next();
-  }else if (!requriesAuth && currentUser){
-    next('/app');
-  }else if (requriesAuth && currentUser){
-    next();
-  }else{
-    next(Error);
+    if (requriesAuth && !currentUser) {
+      next("/");
+    } else if (!requriesAuth && !currentUser) {
+      next();
+    } else if (!requriesAuth && currentUser) {
+      next("/app");
+    } else if (requriesAuth && currentUser) {
+      next();
+    } else {
+      next(Error);
+    }
+  } catch (error) {
+    console.log(error);
   }
 });

@@ -1,6 +1,6 @@
 <template>
   <div class="autocomplete" v-bind:id="this.id">
-    <input type="text" v-model="query" @input="isOpen=true" @blur="closeSuggestions" @keyup.prevent="autocomplete()" v-bind:placeholder="this.placeholder">
+    <input type="text" v-model="query" @input="isOpen=true" @blur="closeSuggestions" @keyup.prevent="send()" v-bind:placeholder="this.placeholder">
     <ul class="autocomplete-results" v-show="isOpen">
       <li class="autocomplete-result" v-for="(result, i) in results.slice(0,show)" :key="i" @click="setResult(result)">
          <p> {{ result }} </p>
@@ -11,7 +11,7 @@
 
 <script>
 /* eslint-disable */
-import Api from "@/services/Api";
+import { autocomplete } from "@/services/Api";
 
 export default {
   props: {
@@ -42,12 +42,16 @@ export default {
     };
   },
   methods: {
-    autocomplete: function() {
-      Api()
-        .get("/autocomplete?q=" + this.query)
-        .then(response => {
-          this.results = response.data.data.map(a => a._source.Combined);
-        });
+    send: async function() {
+
+      const response = await autocomplete(this.query);
+      this.results = response.data.data.map(a => a._source.Combined);
+
+      // Api()
+      //   .get("/autocomplete?q=" + this.query)
+      //   .then(response => {
+      //     this.results = response.data.data.map(a => a._source.Combined);
+      //   });
     },
     closeSuggestions: function () {
         var $this = this;

@@ -2,9 +2,18 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersist from "vuex-persist";
-import firebase from "firebase/app";
-// import "firebase/auth";
-import Api from "./src/services/Api";
+import router from "./src/router/index";
+import { verifyNewUser } from "./src/services/Api";
+import {
+  signInProvider,
+  signInEmailPass,
+  registerEmailPass,
+  signOut,
+  resetPassword,
+  updateDisplayName,
+  sendVerificationEmail,
+  getAUTHidToken
+} from "./src/authentication/firebaseConn";
 import { Snackbar } from "buefy/dist/components/snackbar";
 // import { LoadingProgrammatic as Loading} from "buefy/dist/components/loading";
 // import { Toast } from 'buefy/dist/components/toast'
@@ -29,7 +38,7 @@ export const store = new Vuex.Store({
     remainingSearches: null,
     isVIP: null,
     isBeta: null,
-    idToken: null
+    isInit: false
   },
   mutations: {
     initUser(state, firebaseUser) {
@@ -46,6 +55,16 @@ export const store = new Vuex.Store({
     },
     setIDToken(state, token) {
       state.idToken = token;
+    },
+    setInitState(state, b) {
+      state.isInit = b;
+    },
+    clearState(state) {
+      state.USER = null;
+      state.remainingSearches = null;
+      state.isVIP = null;
+      state.isBeta = null;
+      state.isInit = false;
     }
   },
   getters: {
@@ -66,200 +85,115 @@ export const store = new Vuex.Store({
     },
     currUserIsBeta(state) {
       return state.isBeta;
+    },
+    isStateInit(state) {
+      return state.isInit;
     }
   },
   actions: {
     // Sign in with email and password
-    signIn(context, userInfo) {
-      // Open Loading Spinner
-      const loadingComponent = this._vm.$loading.open();
+    async signIn(context, userInfo) {
+      try {
+        let loading = this._vm.$loading.open();
+        const user = await signInEmailPass(userInfo);
 
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(userInfo.email, userInfo.password)
-        .then(result => {
-          // Close Loading Spinner
-          loadingComponent.close();
-
-          if (result.user.emailVerified) {
-            Api()
-              .post(
-                "/user/verify",
-                {},
-                {
-                  headers: {
-                    Authorization: context.getters.currUserIDToken
-                  }
-                }
-              )
-              .then(response => {
-                const payload = response.data.data;
-                context.commit(
-                  "setRemainingSearches",
-                  payload.remainingSearches
-                );
-                context.commit("setVIP", payload.VIP);
-                context.commit("setBeta", payload.beta);
-              });
-
-            // if user email is NOT verified, alert them
-          } else {
-            this._vm.$toast.open({
-              message: "Please verify your email before signing in",
-              position: "is-top",
-              type: "is-danger"
-            });
-          }
-        })
-        .catch(error => {
-          // Close Loading Spinner
-          loadingComponent.close();
-          // Error Handling
-          this._vm.$toast.open({
-            message: error.message,
-            position: "is-top",
-            type: "is-danger"
+        if (user.emailVerified) {
+          const idToken = await getAUTHidToken();
+          verifyNewUser(idToken).then(response => {
+            const payload = response.data.data;
+            let userInfo = {
+              user: user,
+              remainingSearches: payload.remainingSearches,
+              VIP: payload.VIP,
+              beta: payload.beta,
+              idToken: idToken
+            };
+            context.dispatch("initState", userInfo);
+            loading.close();
+            router.push("/app");
+            context.dispatch("printState");
           });
-        });
+        } else {
+          context.dispatch("signOut");
+          loading.close();
+          router.push("/");
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Sign in with provider
-    signInWithSocial(context, social) {
-      if (social == "google") {
-        var provider = new firebase.auth.GoogleAuthProvider();
-      } else if (social == "facebook") {
-        var provider = new firebase.auth.FacebookAuthProvider();
-      } else if (social == "twitter") {
-        var provider = new firebase.auth.TwitterAuthProvider();
-      } else if (social == "github") {
-        var provider = new firebase.auth.GithubAuthProvider();
-      } else {
-        alert("provider error");
-      }
-
-      firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then(function(result) {
-
-          Api()
-            .post(
-              "/user/verify",
-              {},
-              {
-                headers: {
-                  Authorization: context.getters.currUserIDToken
-                }
-              }
-            )
-            .then(response => {
-              const payload = response.data.data;
-              context.commit("setRemainingSearches", payload.remainingSearches);
-              context.commit("setVIP", payload.VIP);
-              context.commit("setBeta", payload.beta);
-            });
-        })
-        .catch(function(error) {
-          // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;
-
-          // alert(errorMessage);
+    async signInWithSocial(context, social) {
+      try {
+        const user = await signInProvider(social);
+        let loading = this._vm.$loading.open();
+        const idToken = await getAUTHidToken();
+        verifyNewUser(idToken).then(response => {
+          const payload = response.data.data;
+          let userInfo = {
+            user: user,
+            remainingSearches: payload.remainingSearches,
+            VIP: payload.VIP,
+            beta: payload.beta,
+            idToken: idToken
+          };
+          context.dispatch("initState", userInfo);
+          loading.close();
+          router.push("/app");
+          context.dispatch("printState");
         });
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Sign out
-    signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .catch(error => {
-          // Error Handling
-          this._vm.$toast.open({
-            message: error.message,
-            position: "is-top",
-            type: "is-danger"
-          });
-        });
-    },
-    // Register with email and password
-    register(context, userInfo) {
-      // Open Loading Spinner
-      const loadingComponent = this._vm.$loading.open();
-
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(userInfo.email, userInfo.password)
-        .then(result => {
-          // Set user display name (in google auth)
-          result.user
-            .updateProfile({
-              displayName: userInfo.name
-            })
-            .then(function() {
-              // Update successful.
-            })
-            .catch(function(error) {
-              // Close Loading Spinner
-              loadingComponent.close();
-              // An error happened.
-              alert(`updated user error: ${error}`);
-            });
-
-          // Send verification email to users email address
-          result.user
-            .sendEmailVerification()
-            .then(function() {
-              // Close Loading Spinner
-              loadingComponent.close();
-
-              // Email sent.
-              Snackbar.open({
-                message: "Verification email sent to your email address!",
-                position: "is-bottom-left"
-              });
-            })
-            .catch(function(error) {
-              // Close Loading Spinner
-              loadingComponent.close();
-              // An error happened.
-              alert(`email verification error: ${error}`);
-            });
+    async signOut(context) {
+      signOut()
+        .then(() => {
+          context.commit("clearState");
+          router.push("/");
         })
         .catch(error => {
-          // Close Loading Spinner
-          loadingComponent.close();
-
-          this._vm.$toast.open({
-            message: error.message,
-            position: "is-top",
-            type: "is-danger"
-          });
-          // Error Handling
-          // alert(error.message);
+          console.log(error);
         });
     },
+    // Register w/ email and password
+    async register(context, userInfo) {
+      let loading = this._vm.$loading.open();
+      try {
+        const user = await registerEmailPass(userInfo);
+        await updateDisplayName(user, userInfo.name);
+        await sendVerificationEmail(user);
+        context.dispatch("signOut");
+        loading.close();
+      } catch (error) {
+        console.log(error);
+        loading.close();
+      }
+    },
+    // Reset password
     resetPassword(context, emailAddr) {
-      // Open Loading Spinner
-      const loadingComponent = this._vm.$loading.open();
-
-      firebase
-        .auth()
-        .sendPasswordResetEmail(emailAddr)
-        .then(function() {
-          // Close Loading Spinner
-          loadingComponent.close();
-
-          // Email sent.
-          Snackbar.open({
-            message: "Password reset email sent to specifed email address",
-            position: "is-bottom-left"
-          });
-        })
-        .catch(function(error) {
-          // Close Loading Spinner
-          loadingComponent.close();
-          // An error happened.
-          alert(`email verification error: ${error}`);
-        });
+      resetPassword(emailAddr).catch(error => {
+        console.log(error);
+      });
+    },
+    // Initialize the state (and local storage)
+    initState(context, userInfo) {
+      context.commit("initUser", userInfo.user);
+      context.commit("setRemainingSearches", userInfo.remainingSearches);
+      context.commit("setVIP", userInfo.VIP);
+      context.commit("setBeta", userInfo.beta);
+      context.commit("setIDToken", userInfo.idToken);
+      context.commit("setInitState", true);
+    },
+    // print the current content of state to console
+    printState(context) {
+      console.log(`
+        Email:                ${context.getters.currUser.email}
+        Remaining Searches:   ${context.getters.currUserRemainingSearches}
+        isVIP:                ${context.getters.currUserIsVIP}
+        isBeta:               ${context.getters.currUserIsBeta}
+      `);
     }
   },
   plugins: [vuexLocalStorage.plugin]

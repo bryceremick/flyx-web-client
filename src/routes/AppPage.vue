@@ -378,7 +378,8 @@
 import Tickets from "@/components/Tickets";
 import Map from "@/components/Map"; */
 
-import Api from "@/services/Api";
+import { searchFlights } from "@/services/Api";
+import { getAUTHidToken } from "@/authentication/firebaseConn";
 import autocomplete from "@/components/Autocomplete";
 import ticket from "@/components/Ticket";
 import debounce from "debounce";
@@ -504,16 +505,10 @@ export default {
       }
     },
     // This is the function that sends a post request containing 'searchData' to the server
-    submitSearch: function() {
+    submitSearch: async function() {
       this.$root.$emit("startedSearch");
-
-      // do post request
-      Api()
-        .post("/search", this.searchData, {
-          headers: {
-            Authorization: this.$store.getters.currUserIDToken
-          }
-        })
+      const idToken = await getAUTHidToken();
+      searchFlights(idToken, this.searchData)
         .then(response => {
           this.isLoading(false);
           const payload = response.data.data;

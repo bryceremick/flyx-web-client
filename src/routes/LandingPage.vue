@@ -2,21 +2,22 @@
   <div id="page-container">
     <div class="nav">
       <div id="logo-wrap">
-          <!-- <h1 id="logo">FlyX</h1> -->
-          <a href="/"><img id="logo" src="@/assets/logo1-opt.png" alt=""></a>
+        <!-- <h1 id="logo">FlyX</h1> -->
+        <a href="/"><img id="logo" src="@/assets/logo1-opt.png" alt=""/></a>
       </div>
       <div id="nav-link-wrap">
         <h2 id="how-it-works-link">How It Works</h2>
         <h2 id="pricing-link">Pricing</h2>
         <!-- <h2 @click="openSignInModal()">Sign In</h2> -->
         <b-field>
-              <b-button
-              id="sign-in-btn"
-                class="is-secondary"
-                size="is-medium"
-                @click="openSignInModal()"
-              >Sign in</b-button>
-            </b-field>
+          <b-button
+            id="sign-in-btn"
+            class="is-secondary"
+            size="is-medium"
+            @click="openSignInModal()"
+            >Sign in</b-button
+          >
+        </b-field>
       </div>
     </div>
     <div class="top-grid-container">
@@ -55,7 +56,11 @@
     <sweet-modal ref="tabbedModal" width="350px" overlay-theme="dark">
       <sweet-modal-tab title="Sign Up" id="tab1">
         <div class="signIn-register-container">
-          <form id="register-form" @submit.prevent="submitRegister()">
+          <form
+            id="register-form"
+            autocomplete="off"
+            @submit.prevent="submitRegister()"
+          >
             <b-field>
               <b-input
                 placeholder="Full Name"
@@ -83,8 +88,8 @@
                 { 'Password must contain lowercase letters': hasLowercaseErr },
                 { 'Password must contain digits': hasDigitsErr },
                 { 'Password must not contain spaces': noSpacesErr },
-                { 'Your password has been blacklisted': blacklistErr },
-            ]"
+                { 'Your password has been blacklisted': blacklistErr }
+              ]"
             >
               <b-input
                 type="password"
@@ -96,7 +101,7 @@
               ></b-input>
             </b-field>
             <b-field
-              :type="{ 'is-danger': passwordsNoMatchErr}"
+              :type="{ 'is-danger': passwordsNoMatchErr }"
               :message="{ 'Passwords do not match': passwordsNoMatchErr }"
             >
               <b-input
@@ -113,7 +118,8 @@
                 class="is-fullwidth is-secondary"
                 size="is-medium"
                 native-type="submit"
-              >Register</b-button>
+                >Register</b-button
+              >
             </b-field>
           </form>
           <div class="provider-btn-wrap">
@@ -175,7 +181,8 @@
                 class="is-fullwidth is-secondary"
                 size="is-medium"
                 native-type="submit"
-              >Sign In</b-button>
+                >Sign In</b-button
+              >
             </b-field>
             <!-- <input
                 type="email"
@@ -223,7 +230,9 @@
               icon-pack="fab"
             ></b-button>
           </div>
-          <a id="sign-in-forgot-password" @click="clickResetPasswordLink()">Forgot Password?</a>
+          <a id="sign-in-forgot-password" @click="clickResetPasswordLink()"
+            >Forgot Password?</a
+          >
 
           <hr v-if="isResetPassword" style="border-top: 1px solid #979797" />
           <form v-if="isResetPassword" @submit.prevent="submitResetPassword()">
@@ -239,7 +248,9 @@
             </b-field>
 
             <b-field>
-              <b-button class="is-fullwidth is-accent" native-type="submit">Reset Password</b-button>
+              <b-button class="is-fullwidth is-accent" native-type="submit"
+                >Reset Password</b-button
+              >
             </b-field>
           </form>
         </div>
@@ -251,10 +262,10 @@
 <script>
 /* eslint-disable */
 
-import Api from "@/services/Api";
 import PriceTicker from "@/components/PriceTicker";
 import { SweetModal, SweetModalTab } from "sweet-modal-vue";
-import passwordValidator from 'password-validator';
+// import { LoadingProgrammatic as Loading} from "buefy/dist/components/loading";
+import passwordValidator from "password-validator";
 
 export default {
   name: "LandingPage",
@@ -324,33 +335,36 @@ export default {
     },
 
     submitRegister: function() {
-      // Get list of error that password triggers (validate password)
-      var errList = this.schema.validate(this.registerData.password, {
-        list: true
-      });
+      try {
+        // Get list of error that password triggers (validate password)
+        var errList = this.schema.validate(this.registerData.password, {
+          list: true
+        });
 
-      console.log(errList);
+        console.log(errList);
 
-      // if password & confirm password do not match
-      if (this.registerData.password != this.registerData.confirmPassword) {
-        this.passwordsNoMatchErr = true;
-      } else {
-        this.passwordsNoMatchErr = false;
-      }
+        // if password & confirm password do not match
+        if (this.registerData.password != this.registerData.confirmPassword) {
+          this.passwordsNoMatchErr = true;
+        } else {
+          this.passwordsNoMatchErr = false;
+        }
 
-      // if password contains no errors && confirmPassword matches
-      if (errList.length == 0 && !this.passwordsNoMatchErr) {
-        this.resetPasswordErrors();
-        this.$refs.tabbedModal.close();
-        this.$store.dispatch("register", this.registerData);
-        this.registerData = {};
-        this.signInData = {};
-      } else {
-        this.isPasswordErr = true;
-        this.triggerPasswordErrors(errList);
+        // if password contains no errors && confirmPassword matches
+        if (errList.length == 0 && !this.passwordsNoMatchErr) {
+          this.resetPasswordErrors();
+          this.$refs.tabbedModal.close();
+          this.$store.dispatch("register", this.registerData);
+          this.registerData = {};
+          this.signInData = {};
+        } else {
+          this.isPasswordErr = true;
+          this.triggerPasswordErrors(errList);
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
-
     submitSignIn: function() {
       this.$refs.tabbedModal.close();
       this.$store.dispatch("signIn", this.signInData);
@@ -436,4 +450,3 @@ export default {
 <style lang="scss">
 @import "@/assets/LandingPageStyles.scss";
 </style>
-

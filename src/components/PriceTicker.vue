@@ -1,19 +1,19 @@
 <template>
   <div class="ticker" v-bind:id="this.id">
     <div class="ticker-head">
-      <h1>{{this.from}}</h1>
-      <img src="@/assets/plane.svg" alt>
-      <h1>{{this.to}}</h1>
+      <h1>{{ this.from }}</h1>
+      <img src="@/assets/plane.svg" alt />
+      <h1>{{ this.to }}</h1>
     </div>
     <div class="ticker-body">
-      <div class="ticker-ticket" v-for="(ticket,i) in tickets" :key="i">
+      <div class="ticker-ticket" v-for="(ticket, i) in tickets" :key="i">
         <div id="ticker-ticket-info">
-          <p>{{ticket.flyFrom}}</p>
-          <img src="@/assets/arrow-right-solid.svg" alt>
-          <p>{{ticket.flyTo}}</p>
+          <p>{{ ticket.flyFrom }}</p>
+          <img src="@/assets/arrow-right-solid.svg" alt />
+          <p>{{ ticket.flyTo }}</p>
         </div>
         <div id="ticker-ticket-price">
-          <p>${{ticket.price}}</p>
+          <p>${{ ticket.price }}</p>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
 
 // We have to import our base URL connection to the server first.
 // (This is done using Axios...view the Api.js file to see this)
-import Api from "@/services/Api";
+import { priceTicker } from "@/services/Api";
 var moment = require("moment");
 
 export default {
@@ -45,40 +45,21 @@ export default {
   },
   data() {
     return {
-      searchData: {
-        oneWay: true,
-        from: "Los Angeles - LAX",
-        to: "New York - JFK",
-        radiusFrom: "50",
-        radiusTo: "50",
-        departureWindow: {
-          start: "2019-4-20",
-          end: "2019-4-20"
-        },
-        returnDepartureWindow: {
-          start: new Date(),
-          end: new Date()
-        }
-      },
       tickets: []
     };
   },
   mounted() {
-    this.send();
+    // this.send();
   },
   methods: {
     // This is the function that sends a post request containing 'searchData' to the server
-    send: function() {
-      // do post request
-      Api()
-        .get("/priceticker?airportFrom=" + this.from)
-        .then(response => {
-          this.tickets = response.data.data;
-        })
-        .catch(error => {
-          // This catches any error the server would send back
-          console.log(error);
-        });
+    send: async function() {
+      try {
+        const response = await priceTicker(this.from);
+        this.tickets = response.data.data;
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 };
@@ -109,7 +90,7 @@ export default {
     border-top-left-radius: 10px;
     h1 {
       font-size: 40px;
-      font-family: 'Nunito', sans-serif;
+      font-family: "Nunito", sans-serif;
     }
     img {
       width: 30px;
@@ -129,10 +110,10 @@ export default {
       border-bottom: 1px solid #d8d8d8;
       cursor: not-allowed;
 
-      &:last-child{
+      &:last-child {
         border: none;
       }
-      &:hover{
+      &:hover {
         background-color: #f9f9f9;
       }
 
@@ -159,14 +140,13 @@ export default {
         align-items: center;
         padding-right: 20px;
         user-select: none;
-        p{
+        p {
           font-size: 25px;
           font-weight: 600;
-          color: #FF6B6B;
+          color: #ff6b6b;
         }
       }
     }
   }
 }
 </style>
-

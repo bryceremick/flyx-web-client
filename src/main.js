@@ -6,13 +6,17 @@ import router from '@/router/index'
 import VCalendar from 'v-calendar';
 import dotenv from 'dotenv'
 import { store } from '../store' 
-import './authentication/firebaseConn'
+import { initFirebaseAuth } from './authentication/firebaseConn'
+import { initServerAPI } from './services/Api'
 import Buefy from 'buefy'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // import 'v-calendar/lib/v-calendar.min.css'
+
+initFirebaseAuth();
+initServerAPI();
 
 library.add(faUserSecret)
 Vue.component('font-awesome-icon', FontAwesomeIcon)

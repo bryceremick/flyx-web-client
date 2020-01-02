@@ -5,53 +5,17 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
-// import {firebase, auth } from 'firebase/app';
+import { AUTH } from "./authentication/firebaseConn";
 
 export default {
   name: "App",
   mounted() {
     // On auth state change...
-    firebase.auth().onAuthStateChanged(user => {
+    AUTH().onAuthStateChanged(user => {
       // if user is logged in
       if (user) {
-        // if user has verified email
-        if (user.emailVerified) {
-          // redirect to app page and commit user to store
-          this.$store.commit("initUser", user);
-          this.$router.push("/app");
-
-          // commit firebase idToken to store
-          firebase
-            .auth()
-            .currentUser.getIdToken(/* forceRefresh */ true)
-            .then(idToken => {
-              this.$store.commit("setIDToken", idToken);
-            })
-            .catch(error => {
-              // Handle error
-              throw new Error(error);
-            });
-
-          // if user has NOT verified email
-        } else {
-          // log them out
-          firebase
-            .auth()
-            .signOut()
-            .catch(error => {
-              // Error Handling
-              alert(error.message);
-            });
-        }
-        console.log("user is logged in");
-
-        // if user is not logged in
+        console.log(`${user.email} is logged in`);
       } else {
-        // redirect to landing page
-        this.$store.commit("initUser", null);
-        this.$router.push("/");
         console.log("user is logged out");
       }
     });
