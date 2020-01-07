@@ -255,6 +255,7 @@
             <div v-if="ticketDetailsData.route[i + 1]" class="layover">
               <div class="layover-clock-wrap">
                 <img class="layover-clock-img" src="../assets/clock.svg" />
+                <!-- // TODO use bed svg for stay -->
               </div>
               <div class="layover-text-wrap">
                 <p>
@@ -492,11 +493,20 @@ export default {
     },
     validateInput: function() {
       if (this.searchData.from == "" || this.searchData.to == "") {
-        alert("Please fill out all fields");
-      } else if (!this.$store.state.USER.emailVerified) {
-        alert("Please verify your email before searching");
-      } else {
+        this.dangerAlert("Please fill out all search fields", "bottom");
+      } else if (!this.currUserEmailVerified) {
+        this.dangerAlert("Please verify your email before searching", "bottom");
+      }else if (this.currUserRemainingSearches <= 0 && !this.currUserIsVIP) {
+        this.dangerAlert("You have no remaing searches", "bottom");
+      } else if (moment(this.searchData.returnDepartureWindow.start).isBefore(this.searchData.departureWindow.end)) {
+        this.dangerAlert("Invalid search dates", "bottom");
+      }else {
         this.ticketsByPrice = [];
+        this.ticketsByDuration = [];
+        this.ticketsByDate = [];
+        this.isSortPrice = false;
+        this.isSortDuration = false;
+        this.isSortDate = false;
         this.ticketDetailsData = null;
         this.searchData.from = this.onlyAirportCode(this.searchData.from);
         this.searchData.to = this.onlyAirportCode(this.searchData.to);
@@ -533,24 +543,15 @@ export default {
             this.isSortPrice = true;
           } else if (response.status == 401) {
             this.isOutOfSearches = true;
-            this.$toast.open({
-              duration: 3000,
-              message: `You have no remaining searches!`,
-              position: "is-bottom",
-              type: "is-danger"
-            });
+            this.dangerAlert("You have no remaing searches", "bottom");
           } else {
             // ***** NEED ERROR HANDLING *******
-            this.$toast.open({
-              duration: 3000,
-              message: `Something went wrong, please try again later.`,
-              position: "is-bottom",
-              type: "is-danger"
-            });
-            console.log("Something went wrong with the search");
+            this.dangerAlert("Something went wrong, please try again later.", "bottom");
           }
         })
         .catch(error => {
+          this.isLoading(false);
+          this.dangerAlert("Something went wrong, please try again later.", "bottom");
           // This catches any error the server would send back
           console.log(error);
         });
@@ -683,7 +684,15 @@ export default {
     onlyAirportCode: function(str) {
       var parts = str.split(",");
       return parts[0];
-    }
+    },
+    dangerAlert: function (msg, location) {
+      this.$toast.open({
+              duration: 3000,
+              message: msg,
+              position: `is-${location}`,
+              type: "is-danger"
+            });
+    },
   }
 };
 </script>

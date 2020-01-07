@@ -17,6 +17,7 @@ function initServerAPI() {
   try {
     _api = axios.create({
       baseURL: `http://localhost:3000`
+      // baseURL: 'http://c187f000.ngrok.io'
     });
     console.log("Connected successfully to server");
   } catch (error) {
@@ -71,9 +72,9 @@ async function autocomplete (q) {
   }
 }
 
-async function priceTicker (from) {
+async function livePrices (from) {
   try {
-    const response = await _api.get("/priceticker?airportFrom=" + from);
+    const response = await _api.get("/liveprices?airportFrom=" + from);
     return response;
   } catch (error) {
     throw new Error(error);
@@ -86,5 +87,5 @@ export {
   verifyNewUser, 
   searchFlights, 
   autocomplete,
-  priceTicker 
+  livePrices 
 };

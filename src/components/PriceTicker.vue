@@ -25,7 +25,7 @@
 
 // We have to import our base URL connection to the server first.
 // (This is done using Axios...view the Api.js file to see this)
-import { priceTicker } from "@/services/Api";
+import { livePrices } from "@/services/Api";
 var moment = require("moment");
 
 export default {
@@ -49,14 +49,14 @@ export default {
     };
   },
   mounted() {
-    // this.send();
+    this.send();
   },
   methods: {
     // This is the function that sends a post request containing 'searchData' to the server
     send: async function() {
       try {
-        const response = await priceTicker(this.from);
-        this.tickets = response.data.data;
+        const response = await livePrices(this.from);
+        this.tickets = response.data.data.data;
       } catch (error) {
         console.log(error);
       }

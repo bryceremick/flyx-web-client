@@ -339,28 +339,30 @@
             background-color: #e4e4e4;
 
             .layover-clock-wrap {
-              height: 100%;
-              width: 20%;
               display: flex;
               justify-content: center;
               align-items: center;
+              width: 35px;
+              height: 100%;
 
               .layover-clock-img {
-                width: 23px;
+                width: 16px;
+                height: 16px;
                 margin: 0 10px;
               }
             }
             .layover-text-wrap {
               height: 100%;
               display: flex;
-              justify-content: center;
+              justify-content: flex-start;
               align-items: center;
 
               p {
                 color: $FontDark;
                 font-weight: 400;
                 font-size: 14px;
-                margin: 0 10px;
+                // margin: 0 5px;
+                margin-right: 10px;
               }
             }
           }
